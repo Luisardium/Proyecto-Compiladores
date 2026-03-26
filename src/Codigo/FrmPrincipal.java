@@ -13,6 +13,7 @@ public class FrmPrincipal {
     private JTextArea txtResultado;
     private JPanel Main;
     private JButton btnLimpiar;
+    private JTextArea txtTablaErrores;
 
     public FrmPrincipal() {
 
@@ -33,13 +34,29 @@ public class FrmPrincipal {
                 try {
                     Reader lector = new BufferedReader(new FileReader("Archivo.txt"));
                     Lexer lexer = new Lexer(lector);
-                    String resultado = "";
+
+
+                    // Preparamos los encabezados de nuestras dos tablas
+                    String resultado = String.format("%-22s | %s\n", "CATEGORÍA", "LEXEMA");
+                    resultado += "-----------------------|-----------------------\n";
+
+                    String tablaErrores = String.format("\n%-20s | %-15s | %s\n", "TIPO DE ERROR", "LEXEMA", "DESCRIPCIÓN");
+                    tablaErrores += "---------------------|-----------------|-----------------------------------\n";
+
+                    int contadorErrores = 0;
                     while (true){
                         Tokens tokens = lexer.yylex();
+
                         if (tokens == null){
-                            resultado += "--------FIN DEL ANALISIS--------";
-                            txtResultado.setText(resultado);
-                            return;
+
+                            txtResultado.setText(resultado + "\n=== FIN DEL ANÁLISIS ===");
+                                // Al terminar, si hubo errores, pegamos la tabla de errores abajo
+                                if (contadorErrores > 0) {
+                                    txtTablaErrores.setText("=== SE ENCONTRARON " + contadorErrores + " ERRORES LÉXICOS ===\n\n" + tablaErrores);
+                                } else {
+                                    txtTablaErrores.setText(tablaErrores + "\n=== ANÁLISIS EXITOSO: 0 ERRORES ===");
+                                }
+                                return;
                         }
                         switch (tokens){
 
@@ -78,10 +95,30 @@ public class FrmPrincipal {
                                 resultado += String.format("%-22s | %s\n", "[OP. ARITMETICO]", lexer.lexeme);
                                 break;
 
-                            case ERROR:
-                                resultado += String.format("%-22s | %s (No definido)\n", "[ERROR]", lexer.lexeme);
-                                break;
+                                /*  Manejo de errores anterior a Tabla de errores
+                           case ERROR:
+                            resultado += String.format("%-22s | %s (No definido)\n", "[ERROR]", lexer.lexeme);
+                               break;
+                             --- CASOS DE ERROR (Van a la tabla de errores) ---
 
+                                 */
+
+                            case ERROR_LONGITUD:
+                                tablaErrores += String.format("%-20s | %-15s | %s\n", "Longitud Excedida", lexer.lexeme, "El identificador supera los 10 caracteres.");
+                                contadorErrores++;
+                                break;
+                            case ERROR_RANGO:
+                                tablaErrores += String.format("%-20s | %-15s | %s\n", "Fuera de Rango", lexer.lexeme, "El número no está entre 0 y 100.");
+                                contadorErrores++;
+                                break;
+                            case ERROR_CADENA:
+                                tablaErrores += String.format("%-20s | %-15s | %s\n", "Cadena Inválida", lexer.lexeme, "La cadena no contiene la secuencia 'asdfg'.");
+                                contadorErrores++;
+                                break;
+                            case ERROR_DESCONOCIDO:
+                                tablaErrores += String.format("%-20s | %-15s | %s\n", "Carácter Inválido", lexer.lexeme, "Símbolo no pertenece al lenguaje.");
+                                contadorErrores++;
+                                break;
                             default:
                                 resultado += String.format("%-22s | %s\n", "[DESCONOCIDO]", lexer.lexeme);
                                 break;
@@ -100,6 +137,7 @@ public class FrmPrincipal {
             public void actionPerformed(ActionEvent e) {
                 txtEntrada.setText("");
                 txtResultado.setText("");
+                txtTablaErrores.setText("");
             }
         });
     }
@@ -109,7 +147,7 @@ public class FrmPrincipal {
         FrmPrincipal principal = new FrmPrincipal();
         frame.setContentPane(principal.Main);
 
-        frame.setPreferredSize(new Dimension(800, 600));
+        frame.setPreferredSize(new Dimension(1000, 800));
 
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.pack();

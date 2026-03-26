@@ -8,13 +8,13 @@ public class Main {
        String ruta = "src/Codigo/Lexer.flex";
        generarLexer(ruta);
 
-
     }
 
     public static void generarLexer(String ruta){
         File archivo = new File(ruta);
         try {
             JFlex.Main.generate(archivo);
+
             System.out.println("Lexer generado exitosamente.");
         } catch (Exception e) {
             System.out.println("Error al generar: " + e.getMessage());

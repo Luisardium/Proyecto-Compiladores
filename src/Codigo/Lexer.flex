@@ -48,7 +48,7 @@ cadena = \"[^\"]*\"
     if (lexeme.contains("asdfg")) {
         return Cadena;
     } else {
-        return ERROR;
+        return ERROR_CADENA; //Para la tabla de errores
     }
 }
 
@@ -60,10 +60,10 @@ cadena = \"[^\"]*\"
         if (valor >= 0 && valor <= 100) {
             return Numero;
         } else {
-            return ERROR;
+            return ERROR_RANGO; //Para la tabla de errores
         }
     } catch (Exception e) {
-        return ERROR; // Si el número es gigantesco, también es error
+         return ERROR_RANGO; //Para la tabla de errores
     }
 }
 
@@ -75,9 +75,9 @@ cadena = \"[^\"]*\"
     } else if (lexeme.length() <= 10) {
         return Identificador;
     } else {
-        return ERROR;
+        return ERROR_LONGITUD; //Para la tabla de errores
     }
 }
 
 // Fallo de reconocimiento
-. { lexeme=yytext(); return ERROR; }
+. { lexeme=yytext(); return ERROR_DESCONOCIDO; }
